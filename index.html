@@ -1,0 +1,1150 @@
+<!doctype html>
+<html lang="id" class="h-full">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Management System</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
+  <script src="/_sdk/element_sdk.js"></script>
+  <script src="/_sdk/data_sdk.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+  <style>
+*{font-family:'Plus Jakarta Sans',sans-serif;margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;width:100%;overflow:hidden}
+#app{height:100%;width:100%;overflow:auto}
+.fade-in{animation:fadeIn .3s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.slide-in{animation:slideIn .3s ease}
+@keyframes slideIn{from{opacity:0;transform:translateX(-12px)}to{opacity:1;transform:translateX(0)}}
+.toast-anim{animation:toastIn .3s ease,toastOut .3s ease 2.7s forwards}
+@keyframes toastIn{from{opacity:0;transform:translateY(-20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes toastOut{from{opacity:1}to{opacity:0}}
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:#1a1a2e}
+::-webkit-scrollbar-thumb{background:#3a3a5c;border-radius:3px}
+.btn-primary{background:linear-gradient(135deg,#6366f1,#8b5cf6);transition:all .2s}
+.btn-primary:hover{background:linear-gradient(135deg,#5558e6,#7c4fee);transform:translateY(-1px);box-shadow:0 4px 15px rgba(99,102,241,.4)}
+.btn-danger{background:linear-gradient(135deg,#ef4444,#dc2626);transition:all .2s}
+.btn-danger:hover{transform:translateY(-1px);box-shadow:0 4px 15px rgba(239,68,68,.4)}
+.btn-success{background:linear-gradient(135deg,#10b981,#059669);transition:all .2s}
+.btn-success:hover{transform:translateY(-1px);box-shadow:0 4px 15px rgba(16,185,129,.4)}
+.card{background:#16213e;border:1px solid #1a2744;border-radius:12px;transition:all .2s}
+.card:hover{border-color:#2a3f6f}
+.input-field{background:#0f1729;border:1px solid #1a2744;color:#e2e8f0;border-radius:8px;padding:10px 14px;width:100%;transition:all .2s;font-size:14px}
+.input-field:focus{outline:none;border-color:#6366f1;box-shadow:0 0 0 3px rgba(99,102,241,.15)}
+.input-field::placeholder{color:#4a5568}
+select.input-field{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%234a5568' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10l-5 5z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center}
+.sidebar-item{padding:10px 16px;border-radius:8px;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:10px;color:#94a3b8;font-size:14px}
+.sidebar-item:hover{background:#1a2744;color:#e2e8f0}
+.sidebar-item.active{background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;font-weight:600}
+.stat-card{background:linear-gradient(135deg,#16213e,#1a2744);border:1px solid #2a3f6f;border-radius:12px;padding:20px}
+.table-row{border-bottom:1px solid #1a2744;transition:background .15s}
+.table-row:hover{background:#1a2744}
+.badge{padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;z-index:50}
+.bar-fill{transition:width .6s ease;border-radius:4px;height:100%}
+</style>
+  <style>body { box-sizing: border-box; }</style>
+ </head>
+ <body class="h-full w-full" style="background:#0a0e1a;color:#e2e8f0">
+  <div id="app" class="h-full w-full">
+   <!-- TOAST -->
+   <div id="toast-container" style="position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:100"></div><!-- LOGIN PAGE -->
+   <div id="page-login" class="h-full w-full flex items-center justify-center" style="background:linear-gradient(135deg,#0a0e1a 0%,#16213e 50%,#0a0e1a 100%)">
+    <div class="fade-in" style="width:100%;max-width:420px;padding:20px">
+     <div class="text-center mb-8">
+      <div style="width:64px;height:64px;border-radius:16px;background:linear-gradient(135deg,#6366f1,#8b5cf6);display:inline-flex;align-items:center;justify-content:center;margin-bottom:16px">
+       <i data-lucide="shield-check" style="width:32px;height:32px;color:#fff"></i>
+      </div>
+      <h1 id="login-title" class="text-2xl font-bold mb-1" style="color:#fff">Management System</h1>
+      <p style="color:#64748b;font-size:14px">Pilih metode login untuk melanjutkan</p>
+     </div>
+     <div class="flex gap-2 mb-6 p-1 rounded-lg" style="background:#16213e">
+      <button onclick="switchLoginTab('admin')" id="tab-admin" class="flex-1 py-2.5 rounded-md text-sm font-semibold transition-all" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff">Admin</button> <button onclick="switchLoginTab('user')" id="tab-user" class="flex-1 py-2.5 rounded-md text-sm font-semibold transition-all" style="color:#64748b">User</button>
+     </div><!-- Admin Login -->
+     <div id="login-admin" class="card p-6">
+      <div class="mb-4">
+       <label class="block text-xs font-semibold mb-2" style="color:#94a3b8">MASUKAN KEY</label>
+       <div class="relative">
+        <input type="password" id="admin-key" class="input-field" placeholder="Masukan admin key" style="padding-right:40px"> <button onclick="toggleKeyVis()" class="absolute right-3 top-1/2 -translate-y-1/2" style="color:#4a5568"><i data-lucide="eye-off" id="key-eye" style="width:18px;height:18px"></i></button>
+       </div>
+      </div><button onclick="loginAdmin()" class="btn-primary w-full py-3 rounded-lg text-sm font-bold text-white">Masuk sebagai Admin</button>
+      <div id="admin-error" class="mt-3 text-center text-xs font-medium" style="color:#ef4444;display:none"></div>
+     </div><!-- User Login -->
+     <div id="login-user" class="card p-6" style="display:none">
+      <div class="mb-4">
+       <label class="block text-xs font-semibold mb-2" style="color:#94a3b8">USERNAME</label> <input type="text" id="user-username" class="input-field" placeholder="Masukan username">
+      </div>
+      <div class="mb-4">
+       <label class="block text-xs font-semibold mb-2" style="color:#94a3b8">PASSWORD</label> <input type="password" id="user-password" class="input-field" placeholder="Masukan password">
+      </div><button onclick="loginUser()" class="btn-primary w-full py-3 rounded-lg text-sm font-bold text-white">Masuk</button>
+      <div id="user-error" class="mt-3 text-center text-xs font-medium" style="color:#ef4444;display:none"></div>
+     </div>
+    </div>
+   </div><!-- DASHBOARD -->
+   <div id="page-dashboard" class="h-full w-full flex" style="display:none">
+    <!-- Sidebar -->
+    <aside id="sidebar" class="flex-shrink-0 flex flex-col" style="width:240px;background:#0f1729;border-right:1px solid #1a2744;height:100%">
+     <div class="p-4 flex items-center gap-3" style="border-bottom:1px solid #1a2744">
+      <div style="width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#6366f1,#8b5cf6);display:flex;align-items:center;justify-content:center">
+       <i data-lucide="zap" style="width:18px;height:18px;color:#fff"></i>
+      </div>
+      <div>
+       <div id="sidebar-title" class="text-sm font-bold" style="color:#fff">
+        System
+       </div>
+       <div id="sidebar-role" class="text-xs" style="color:#6366f1"></div>
+      </div>
+     </div>
+     <nav id="sidebar-nav" class="flex-1 p-3 flex flex-col gap-1 overflow-auto"></nav>
+     <div class="p-3" style="border-top:1px solid #1a2744">
+      <button onclick="logout()" class="sidebar-item w-full" style="color:#ef4444"> <i data-lucide="log-out" style="width:18px;height:18px"></i> Logout </button>
+     </div>
+    </aside><!-- Main -->
+    <main id="main-content" class="flex-1 overflow-auto p-6"></main>
+   </div><!-- Mobile sidebar toggle --> <button id="mobile-toggle" onclick="toggleSidebar()" class="fixed top-4 left-4 z-40 p-2 rounded-lg" style="background:#16213e;border:1px solid #1a2744;display:none"> <i data-lucide="menu" style="width:20px;height:20px;color:#fff"></i> </button>
+  </div>
+  <script>
+// ========== STATE ==========
+let allData = [];
+let currentUser = null; // { type:'admin' } or { type:'user', ...userData }
+let currentPage = '';
+let sidebarOpen = true;
+const ADMIN_KEY = '5676';
+const ROLES = ['MANAGER MARKETING','MARKETING','PROMOTOR','TIM DATA','TIM KEUANGAN'];
+
+// ========== ELEMENT SDK ==========
+const defaultConfig = {
+  app_title: 'Management System',
+  background_color: '#0a0e1a',
+  surface_color: '#16213e',
+  text_color: '#e2e8f0',
+  primary_color: '#6366f1',
+  secondary_color: '#8b5cf6'
+};
+
+window.elementSdk.init({
+  defaultConfig,
+  onConfigChange: async (config) => {
+    const t = config.app_title || defaultConfig.app_title;
+    const el = document.getElementById('login-title');
+    if(el) el.textContent = t;
+    const st = document.getElementById('sidebar-title');
+    if(st) st.textContent = t.length > 12 ? t.substring(0,12)+'...' : t;
+  },
+  mapToCapabilities: (config) => ({
+    recolorables: [
+      { get:()=>config.background_color||defaultConfig.background_color, set:(v)=>{config.background_color=v;window.elementSdk.setConfig({background_color:v})}},
+      { get:()=>config.surface_color||defaultConfig.surface_color, set:(v)=>{config.surface_color=v;window.elementSdk.setConfig({surface_color:v})}},
+      { get:()=>config.text_color||defaultConfig.text_color, set:(v)=>{config.text_color=v;window.elementSdk.setConfig({text_color:v})}},
+      { get:()=>config.primary_color||defaultConfig.primary_color, set:(v)=>{config.primary_color=v;window.elementSdk.setConfig({primary_color:v})}},
+      { get:()=>config.secondary_color||defaultConfig.secondary_color, set:(v)=>{config.secondary_color=v;window.elementSdk.setConfig({secondary_color:v})}}
+    ],
+    borderables: [],
+    fontEditable: undefined,
+    fontSizeable: undefined
+  }),
+  mapToEditPanelValues: (config) => new Map([
+    ['app_title', config.app_title || defaultConfig.app_title]
+  ])
+});
+
+// ========== DATA SDK ==========
+const dataHandler = {
+  onDataChanged(data) {
+    allData = data || [];
+    if(currentUser) refreshCurrentPage();
+  }
+};
+(async()=>{
+  const r = await window.dataSdk.init(dataHandler);
+  if(!r.isOk) showToast('Gagal koneksi data','error');
+})();
+
+// ========== HELPERS ==========
+function getRecords(type){ return allData.filter(d=>d.record_type===type); }
+function showToast(msg,type='success'){
+  const c=document.getElementById('toast-container');
+  const t=document.createElement('div');
+  t.className='toast-anim';
+  const bg=type==='success'?'#10b981':type==='error'?'#ef4444':'#f59e0b';
+  t.style.cssText=`background:${bg};color:#fff;padding:12px 20px;border-radius:8px;font-size:13px;font-weight:600;margin-bottom:8px;box-shadow:0 4px 15px rgba(0,0,0,.3)`;
+  t.textContent=msg;
+  c.appendChild(t);
+  setTimeout(()=>t.remove(),3000);
+}
+function toggleKeyVis(){
+  const inp=document.getElementById('admin-key');
+  const eye=document.getElementById('key-eye');
+  if(inp.type==='password'){inp.type='text';eye.setAttribute('data-lucide','eye')}
+  else{inp.type='password';eye.setAttribute('data-lucide','eye-off')}
+  lucide.createIcons();
+}
+
+// ========== LOGIN ==========
+function switchLoginTab(tab){
+  document.getElementById('login-admin').style.display=tab==='admin'?'block':'none';
+  document.getElementById('login-user').style.display=tab==='user'?'block':'none';
+  document.getElementById('tab-admin').style.background=tab==='admin'?'linear-gradient(135deg,#6366f1,#8b5cf6)':'transparent';
+  document.getElementById('tab-admin').style.color=tab==='admin'?'#fff':'#64748b';
+  document.getElementById('tab-user').style.background=tab==='user'?'linear-gradient(135deg,#6366f1,#8b5cf6)':'transparent';
+  document.getElementById('tab-user').style.color=tab==='user'?'#fff':'#64748b';
+}
+
+function loginAdmin(){
+  const key=document.getElementById('admin-key').value.trim();
+  const err=document.getElementById('admin-error');
+  if(key!==ADMIN_KEY){err.textContent='Key salah! Coba lagi.';err.style.display='block';return}
+  err.style.display='none';
+  currentUser={type:'admin'};
+  showDashboard();
+}
+
+function loginUser(){
+  const u=document.getElementById('user-username').value.trim();
+  const p=document.getElementById('user-password').value.trim();
+  const err=document.getElementById('user-error');
+  if(!u||!p){err.textContent='Isi semua field!';err.style.display='block';return}
+  const users=getRecords('user');
+  const found=users.find(x=>x.username===u&&x.password===p);
+  if(!found){err.textContent='Username atau password salah!';err.style.display='block';return}
+  err.style.display='none';
+  currentUser={type:'user',...found};
+  showDashboard();
+}
+
+function logout(){
+  currentUser=null;currentPage='';
+  document.getElementById('page-login').style.display='flex';
+  document.getElementById('page-dashboard').style.display='none';
+  document.getElementById('admin-key').value='';
+  document.getElementById('user-username').value='';
+  document.getElementById('user-password').value='';
+}
+
+// ========== DASHBOARD ==========
+function showDashboard(){
+  document.getElementById('page-login').style.display='none';
+  document.getElementById('page-dashboard').style.display='flex';
+  buildSidebar();
+}
+
+function buildSidebar(){
+  const nav=document.getElementById('sidebar-nav');
+  const role=document.getElementById('sidebar-role');
+  nav.innerHTML='';
+  let items=[];
+
+  if(currentUser.type==='admin'){
+    role.textContent='ADMIN';
+    items=[
+      {id:'admin-dashboard',icon:'layout-dashboard',label:'Dashboard'},
+      {id:'admin-users',icon:'users',label:'Kelola User'},
+      {id:'admin-stok',icon:'package',label:'Stok Akun'},
+      {id:'admin-jebol',icon:'unlock',label:'Jebol Akun'},
+      {id:'admin-web',icon:'globe',label:'Create Web'},
+      {id:'admin-wa',icon:'message-circle',label:'Kenon WA'},
+      {id:'admin-buyer',icon:'shopping-cart',label:'Input Pembeli'},
+      {id:'admin-limit',icon:'gauge',label:'Limit Penggunaan'},
+      {id:'admin-finance',icon:'banknote',label:'Keuangan'}
+    ];
+  } else {
+    const r=currentUser.role||'';
+    role.textContent=r;
+    if(r==='MANAGER MARKETING'){
+      items=[
+        {id:'mm-dashboard',icon:'layout-dashboard',label:'Dashboard'},
+        {id:'mm-stok',icon:'package',label:'Daftar Stok Akun'},
+        {id:'mm-target',icon:'target',label:'Target Marketing'}
+      ];
+    } else if(r==='MARKETING'){
+      items=[
+        {id:'mk-dashboard',icon:'layout-dashboard',label:'Dashboard'},
+        {id:'mk-buyer',icon:'shopping-cart',label:'Input Pembeli'},
+        {id:'mk-limit',icon:'gauge',label:'Limit Saya'}
+      ];
+    } else if(r==='PROMOTOR'){
+      items=[
+        {id:'pr-dashboard',icon:'layout-dashboard',label:'Dashboard'},
+        {id:'pr-buyer',icon:'shopping-cart',label:'Input Pembeli'}
+      ];
+    } else if(r==='TIM DATA'){
+      items=[
+        {id:'td-dashboard',icon:'layout-dashboard',label:'Dashboard'},
+        {id:'td-akun',icon:'database',label:'Data Akun'},
+        {id:'td-analisis',icon:'bar-chart-3',label:'Analisis Pembeli'}
+      ];
+    } else if(r==='TIM KEUANGAN'){
+      items=[
+        {id:'tk-dashboard',icon:'layout-dashboard',label:'Dashboard'},
+        {id:'tk-finance',icon:'banknote',label:'Keuangan'}
+      ];
+    }
+  }
+
+  items.forEach(it=>{
+    const d=document.createElement('div');
+    d.className='sidebar-item';
+    d.setAttribute('data-page',it.id);
+    d.innerHTML=`<i data-lucide="${it.icon}" style="width:18px;height:18px"></i> ${it.label}`;
+    d.onclick=()=>navigateTo(it.id);
+    nav.appendChild(d);
+  });
+  lucide.createIcons();
+  if(items.length) navigateTo(items[0].id);
+}
+
+function navigateTo(pageId){
+  currentPage=pageId;
+  document.querySelectorAll('.sidebar-item[data-page]').forEach(el=>{
+    el.classList.toggle('active',el.getAttribute('data-page')===pageId);
+  });
+  renderPage(pageId);
+}
+
+function refreshCurrentPage(){ if(currentPage) renderPage(currentPage); }
+
+function renderPage(pageId){
+  const main=document.getElementById('main-content');
+  const pages={
+    'admin-dashboard':renderAdminDashboard,
+    'admin-users':renderAdminUsers,
+    'admin-stok':renderAdminStok,
+    'admin-jebol':renderAdminJebol,
+    'admin-web':renderAdminWeb,
+    'admin-wa':renderAdminWA,
+    'admin-buyer':renderBuyerInput,
+    'admin-limit':renderAdminLimit,
+    'admin-finance':renderFinance,
+    'mm-dashboard':renderMMDashboard,
+    'mm-stok':renderMMStok,
+    'mm-target':renderMMTarget,
+    'mk-dashboard':renderMKDashboard,
+    'mk-buyer':renderBuyerInput,
+    'mk-limit':renderMKLimit,
+    'pr-dashboard':renderPRDashboard,
+    'pr-buyer':renderBuyerInput,
+    'td-dashboard':renderTDDashboard,
+    'td-akun':renderTDAkun,
+    'td-analisis':renderTDAnalisis,
+    'tk-dashboard':renderTKDashboard,
+    'tk-finance':renderFinance
+  };
+  const fn=pages[pageId];
+  if(fn) fn(main); else main.innerHTML='<p>Halaman tidak ditemukan</p>';
+  lucide.createIcons();
+}
+
+// ========== ADMIN DASHBOARD ==========
+function renderAdminDashboard(el){
+  const users=getRecords('user');
+  const stok=getRecords('stok');
+  const buyers=getRecords('buyer');
+  const finance=getRecords('finance');
+  const totalStok=stok.reduce((s,x)=>s+(Number(x.stok_qty)||0),0);
+  const income=finance.filter(f=>f.finance_type==='masuk').reduce((s,x)=>s+(Number(x.finance_amount)||0),0);
+  const expense=finance.filter(f=>f.finance_type==='keluar').reduce((s,x)=>s+(Number(x.finance_amount)||0),0);
+
+  el.innerHTML=`<div class="fade-in">
+    <h2 class="text-xl font-bold mb-6" style="color:#fff">Dashboard Admin</h2>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      ${statCard('users','Total User',users.length,'#6366f1')}
+      ${statCard('package','Total Stok',totalStok,'#10b981')}
+      ${statCard('shopping-cart','Total Pembeli',buyers.length,'#f59e0b')}
+      ${statCard('trending-up','Saldo','Rp '+formatNum(income-expense),'#8b5cf6')}
+    </div>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div class="card p-5">
+        <h3 class="text-sm font-bold mb-3" style="color:#94a3b8">USER PER ROLE</h3>
+        ${ROLES.map(r=>{const c=users.filter(u=>u.role===r).length;return`<div class="flex justify-between items-center py-2" style="border-bottom:1px solid #1a2744"><span class="text-xs font-medium">${r}</span><span class="badge" style="background:#6366f120;color:#6366f1">${c}</span></div>`}).join('')}
+      </div>
+      <div class="card p-5">
+        <h3 class="text-sm font-bold mb-3" style="color:#94a3b8">PEMBELI TERBARU</h3>
+        ${buyers.slice(-5).reverse().map(b=>`<div class="flex justify-between items-center py-2" style="border-bottom:1px solid #1a2744"><span class="text-xs">${b.buyer_name||'-'}</span><span class="text-xs" style="color:#64748b">${b.buyer_date||'-'}</span></div>`).join('')||'<p class="text-xs" style="color:#4a5568">Belum ada data</p>'}
+      </div>
+    </div>
+  </div>`;
+}
+
+function statCard(icon,label,value,color){
+  return`<div class="stat-card"><div class="flex items-center gap-3 mb-2"><div style="width:40px;height:40px;border-radius:10px;background:${color}20;display:flex;align-items:center;justify-content:center"><i data-lucide="${icon}" style="width:20px;height:20px;color:${color}"></i></div></div><div class="text-2xl font-bold" style="color:#fff">${value}</div><div class="text-xs mt-1" style="color:#64748b">${label}</div></div>`;
+}
+
+function formatNum(n){return Number(n||0).toLocaleString('id-ID')}
+
+// ========== ADMIN USERS ==========
+function renderAdminUsers(el){
+  const users=getRecords('user');
+  const formVisible=window.adminUserFormVisible||false;
+  el.innerHTML=`<div class="fade-in">
+    <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
+      <h2 class="text-xl font-bold" style="color:#fff">Kelola User</h2>
+      <button onclick="toggleUserForm()" class="btn-primary px-4 py-2.5 rounded-lg text-sm font-semibold text-white flex items-center gap-2"><i data-lucide="plus" style="width:16px;height:16px"></i> Tambah User</button>
+    </div>
+    <div id="create-user-form" style="display:${formVisible?'block':'none'}" class="card p-5 mb-5">
+      <h3 class="text-sm font-bold mb-4" style="color:#fff">Buat User Baru</h3>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
+        <div><label class="block text-xs font-semibold mb-1" style="color:#94a3b8">Nama</label><input id="cu-name" class="input-field" placeholder="Nama lengkap"></div>
+        <div><label class="block text-xs font-semibold mb-1" style="color:#94a3b8">Username</label><input id="cu-username" class="input-field" placeholder="Username"></div>
+        <div><label class="block text-xs font-semibold mb-1" style="color:#94a3b8">Password</label><input id="cu-password" class="input-field" placeholder="Password"></div>
+        <div><label class="block text-xs font-semibold mb-1" style="color:#94a3b8">Jabatan</label>
+          <select id="cu-role" class="input-field">
+            <option value="">Pilih Jabatan</option>
+            ${ROLES.map(r=>`<option value="${r}">${r}</option>`).join('')}
+          </select>
+        </div>
+      </div>
+      <div class="flex gap-2">
+        <button onclick="createUser()" class="btn-success px-4 py-2 rounded-lg text-sm font-semibold text-white">Simpan</button>
+        <button onclick="toggleUserForm()" class="px-4 py-2 rounded-lg text-sm font-semibold" style="background:#1a2744;color:#94a3b8">Batal</button>
+      </div>
+    </div>
+    <div class="card overflow-hidden">
+      <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead><tr style="background:#1a2744">
+          <th class="text-left px-4 py-3 text-xs font-semibold" style="color:#64748b">NAMA</th>
+          <th class="text-left px-4 py-3 text-xs font-semibold" style="color:#64748b">USERNAME</th>
+          <th class="text-left px-4 py-3 text-xs font-semibold" style="color:#64748b">JABATAN</th>
+          <th class="text-left px-4 py-3 text-xs font-semibold" style="color:#64748b">AKSI</th>
+        </tr></thead>
+        <tbody>
+          ${users.map(u=>`<tr class="table-row">
+            <td class="px-4 py-3">${u.name||'-'}</td>
+            <td class="px-4 py-3" style="color:#6366f1;font-weight:600">${u.username||'-'}</td>
+            <td class="px-4 py-3"><span class="badge" style="background:${roleColor(u.role)}20;color:${roleColor(u.role)}">${u.role||'-'}</span></td>
+            <td class="px-4 py-3"><button onclick="deleteUser('${u.__backendId}')" class="text-xs font-semibold px-3 py-1 rounded" style="color:#ef4444;background:#ef444420">Hapus</button></td>
+          </tr>`).join('')||`<tr><td colspan="4" class="px-4 py-8 text-center" style="color:#4a5568">Belum ada user</td></tr>`}
+        </tbody>
+      </table>
+      </div>
+    </div>
+  </div>`;
+  lucide.createIcons();
+}
+
+function roleColor(r){
+  const m={'MANAGER MARKETING':'#6366f1','MARKETING':'#10b981','PROMOTOR':'#f59e0b','TIM DATA':'#3b82f6','TIM KEUANGAN':'#ec4899'};
+  return m[r]||'#94a3b8';
+}
+
+function showCreateUser(){document.getElementById('create-user-form').style.display='block'}
+
+function toggleUserForm(){
+  window.adminUserFormVisible=!window.adminUserFormVisible;
+  if(currentPage==='admin-users')renderPage('admin-users');
+}
+
+async function createUser(){
+  const name=document.getElementById('cu-name').value.trim();
+  const username=document.getElementById('cu-username').value.trim();
+  const password=document.getElementById('cu-password').value.trim();
+  const role=document.getElementById('cu-role').value;
+  if(!name||!username||!password||!role){showToast('Isi semua field!','error');return}
+  const existing=getRecords('user');
+  if(existing.find(u=>u.username===username)){showToast('Username sudah ada!','error');return}
+  if(allData.length>=999){showToast('Limit data tercapai!','error');return}
+  const r=await window.dataSdk.create({record_type:'user',name,username,password,role,stok_name:'',stok_qty:0,buyer_name:'',buyer_phone:'',buyer_product:'',buyer_date:'',buyer_by:'',finance_desc:'',finance_amount:0,finance_type:'',finance_date:'',finance_by:'',limit_username:'',limit_amount:0,akun_name:'',akun_email:'',akun_password:'',akun_status:'',akun_type:'',akun_by:'',web_name:'',web_url:'',wa_phone:'',wa_message:'',target_username:'',target_amount:0,target_achieved:0});
+  if(r.isOk){showToast('User berhasil dibuat!');window.adminUserFormVisible=false;document.getElementById('cu-name').value='';document.getElementById('cu-username').value='';document.getElementById('cu-password').value='';document.getElementById('cu-role').value=''}
+  else showToast('Gagal membuat user','error');
+}
+
+async function deleteUser(id){
+  const rec=allData.find(d=>d.__backendId===id);
+  if(!rec)return;
+  const r=await window.dataSdk.delete(rec);
+  if(r.isOk)showToast('User dihapus');else showToast('Gagal menghapus','error');
+}
+
+// ========== STOK AKUN ==========
+function renderAdminStok(el){ renderStokPage(el,'admin'); }
+function renderMMStok(el){ renderStokPage(el,'manager'); }
+
+function renderMMTarget(el){
+  const targets=getRecords('target').filter(t=>t.target_username);
+  const formVisible=window.mmTargetFormVisible||false;
+  el.innerHTML=`<div class="fade-in">
+    <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
+      <h2 class="text-xl font-bold" style="color:#fff">Target Marketing</h2>
+      <button onclick="toggleMMTargetForm()" class="btn-primary px-4 py-2.5 rounded-lg text-sm font-semibold text-white flex items-center gap-2"><i data-lucide="plus" style="width:16px;height:16px"></i> Set Target</button>
+    </div>
+    ${formVisible?`<div id="add-target-form" class="card p-5 mb-5">
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-3">
+        <div><label class="block text-xs font-semibold mb-1" style="color:#94a3b8">Username Marketing</label>
+          <select id="tgt-username" class="input-field"><option value="">Pilih Marketing</option>${getRecords('user').filter(u=>u.role==='MARKETING').map(u=>`<option value="${u.username}">${u.username}</option>`).join('')}</select></div>
+        <div><label class="block text-xs font-semibold mb-1" style="color:#94a3b8">Target Pembeli</label><input id="tgt-amount" type="number" class="input-field" placeholder="0"></div>
+        <div class="flex items-end gap-2">
+          <button onclick="setMMTarget()" class="btn-success px-4 py-2 rounded-lg text-sm font-semibold text-white flex-1">Set</button>
+          <button onclick="toggleMMTargetForm()" class="px-4 py-2 rounded-lg text-sm font-semibold" style="background:#1a2744;color:#94a3b8;flex-1">Batal</button>
+        </div>
+      </div>
+    </div>`:''}
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      ${targets.map(t=>{const mkUser=getRecords('user').find(u=>u.username===t.target_username);const achieved=t.target_achieved||0;const pct=t.target_amount>0?(achieved/t.target_amount)*100:0;return`<div class="card p-4">
+        <div class="flex justify-between items-start mb-3">
+          <div><div class="text-xs" style="color:#64748b">Marketing</div><div class="text-sm font-bold" style="color:#fff">${t.target_username}</div></div>
+          <button onclick="deleteRecord('${t.__backendId}')" style="color:#ef4444"><i data-lucide="trash-2" style="width:16px;height:16px"></i></button>
+        </div>
+        <div class="mb-2"><div class="text-2xl font-bold" style="color:#6366f1">${achieved}<span class="text-xs" style="color:#64748b"> / ${t.target_amount}</span></div></div>
+        <div style="height:8px;background:#1a2744;border-radius:4px;overflow:hidden"><div class="bar-fill" style="width:${Math.min(pct,100)}%;background:${pct>=100?'#10b981':'linear-gradient(90deg,#6366f1,#8b5cf6)'}"></div></div>
+        <div class="text-xs mt-2 font-semibold" style="color:${pct>=100?'#10b981':pct>=80?'#f59e0b':'#64748b'}">${Math.round(pct)}%</div>
+      </div>`}).join('')||'<div class="col-span-full text-center py-8" style="color:#4a5568">Belum ada target</div>'}
+    </div>
+  </div>`;
+  lucide.createIcons();
+}
+
+function toggleMMTargetForm(){
+  window.mmTargetFormVisible=!window.mmTargetFormVisible;
+  if(currentPage==='mm-target')renderPage('mm-target');
+}
+
+async function setMMTarget(){
+  const username=document.getElementById('tgt-username').value.trim();
+  const amount=parseInt(document.getElementById('tgt-amount').value)||0;
+  if(!username||!amount){showToast('Isi semua field!','error');return}
+  if(allData.length>=999){showToast('Limit data tercapai!','error');return}
+  const existing=allData.find(t=>t.record_type==='target'&&t.target_username===username);
+  if(existing){
+    const updated={...existing,target_amount:amount};
+    const r=await window.dataSdk.update(updated);
+    if(r.isOk){showToast('Target diupdate!');window.mmTargetFormVisible=false;document.getElementById('tgt-username').value='';document.getElementById('tgt-amount').value=''}else showToast('Gagal update','error');
+  }else{
+    const r=await window.dataSdk.create({record_type:'target',target_username:username,target_amount:amount,target_achieved:0,name:'',username:'',password:'',role:'',stok_name:'',stok_qty:0,buyer_name:'',buyer_phone:'',buyer_product:'',buyer_date:'',buyer_by:'',finance_desc:'',finance_amount:0,finance_type:'',finance_date:'',finance_by:'',limit_username:'',limit_amount:0,akun_name:'',akun_email:'',akun_password:'',akun_status:'',akun_type:'',akun_by:'',web_name:'',web_url:'',wa_phone:'',wa_message:''});
+    if(r.isOk){showToast('Target ditambahkan!');window.mmTargetFormVisible=false;document.getElementById('tgt-username').value='';document.getElementById('tgt-amount').value=''}else showToast('Gagal','error');
+  }
+}
+
+function renderStokPage(el,role){
+  const stok=getRecords('stok');
+  const canAdd=(role==='admin');
+  const formVisible=window.stokFormVisible||false;
+  el.innerHTML=`<div class="fade-in">
+    <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
+      <h2 class="text-xl font-bold" style="color:#fff">Stok Akun</h2>
+      ${canAdd?`<button onclick="toggleStokForm()" class="btn-primary px-4 py-2.5 rounded-lg text-sm font-semibold text-white flex items-center gap-2"><i data-lucide="plus" style="width:16px;height:16px"></i> Add Stok</button>`:''}
+    </div>
+    ${canAdd?`<div id="add-stok-form" style="display:${formVisible?'block':'none'}" class="card p-5 mb-5">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
+        <div><label class="block text-xs font-semibold mb-1" style="color:#94a3b8">Nama Akun</label><input id="stok-name" class="input-field" placeholder="Nama akun"></div>
+        <div><label class="block text-xs font-semibold mb-1" style="color:#94a3b8">Jumlah</label><input id="stok-qty" type="number" class="input-field" placeholder="0"></div>
+      </div>
+      <div class="flex gap-2">
+        <button onclick="addStok()" class="btn-success px-4 py-2 rounded-lg text-sm font-semibold text-white">Tambah</button>
+        <button onclick="toggleStokForm()" class="px-4 py-2 rounded-lg text-sm font-semibold" style="background:#1a2744;color:#94a3b8">Batal</button>
+      </div>
+    </div>`:''}
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      ${stok.map(s=>`<div class="card p-4">
+        <div class="flex justify-between items-start">
+          <div><div class="text-sm font-bold" style="color:#fff">${s.stok_name||'-'}</div><div class="text-2xl font-bold mt-1" style="color:#10b981">${s.stok_qty||0}</div><div class="text-xs mt-1" style="color:#64748b">unit tersedia</div></div>
+          ${canAdd?`<button onclick="deleteRecord('${s.__backendId}')" style="color:#ef4444"><i data-lucide="trash-2" style="width:16px;height:16px"></i></button>`:''}
+        </div>
+      </div>`).join('')||'<div class="col-span-full text-center py-8" style="color:#4a5568">Belum ada stok</div>'}
+    </div>
+  </div>`;
+  lucide.createIcons();
+}
+
+function toggleStokForm(){
+  window.stokFormVisible=!window.stokFormVisible;
+  if(currentPage==='admin-stok'||currentPage==='mm-stok')renderPage(currentPage);
+}
+
+async function addStok(){
+  const name=document.getElementById('stok-name').value.trim();
+  const qty=parseInt(document.getElementById('stok-qty').value)||0;
+  if(!name){showToast('Isi nama akun!','error');return}
+  if(allData.length>=999){showToast('Limit data tercapai!','error');return}
+  const r=await window.dataSdk.create({record_type:'stok',stok_name:name,stok_qty:qty,name:'',username:'',password:'',role:'',buyer_name:'',buyer_phone:'',buyer_product:'',buyer_date:'',buyer_by:'',finance_desc:'',finance_amount:0,finance_type:'',finance_date:'',finance_by:'',limit_username:'',limit_amount:0,akun_name:'',akun_email:'',akun_password:'',akun_status:'',akun_type:'',akun_by:'',web_name:'',web_url:'',wa_phone:'',wa_message:'',target_username:'',target_amount:0,target_achieved:0});
+  if(r.isOk){showToast('Stok ditambahkan!');window.stokFormVisible=false;document.getElementById('stok-name').value='';document.getElementById('stok-qty').value=''}
+  else showToast('Gagal','error');
+}
+
+async function deleteRecord(id){
+  const rec=allData.find(d=>d.__backendId===id);
+  if(!rec)return;
+  const r=await window.dataSdk.delete(rec);
+  if(r.isOk)showToast('Dihapus');else showToast('Gagal menghapus','error');
+}
+
+// ========== JEBOL AKUN ==========
+function renderAdminJebol(el){
+  const akuns=getRecords('akun');
+  const formVisible=window.jebolFormVisible||false;
+  el.innerHTML=`<div class="fade-in">
+    <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
+      <h2 class="text-xl font-bold" style="color:#fff">Jebol Akun</h2>
+      <button onclick="toggleJebolForm()" class="btn-primary px-4 py-2.5 rounded-lg text-sm font-semibold text-white flex items-center gap-2"><i data-lucide="plus" style="width:16px;height:16px"></i> Tambah</button>
+    </div>
+    <div id="jebol-form" style="display:${formVisible?'block':'none'}" class="card p-5 mb-5">
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-3">
+        <div><label class="block text-xs font-semibold mb-1" style="color:#94a3b8">Nama Akun</label><input id="jb-name" class="input-field" placeholder="Nama akun"></div>
+        <div><label class="block text-xs font-semibold mb-1" style="color:#94a3b8">Tipe</label>
+          <select id="jb-type" class="input-field"><option value="Facebook">Facebook</option><option value="Instagram">Instagram</option><option value="TikTok">TikTok</option><option value="Google">Google</option><option value="Lainnya">Lainnya</option></select></div>
+        <div><label class="block text-xs font-semibold mb-1" style="color:#94a3b8">Status</label>
+          <select id="jb-status" class="input-field"><option value="Berhasil">Berhasil</option><option value="Gagal">Gagal</option><option value="Proses">Proses</option></select></div>
+      </div>
+      <div class="flex gap-2">
+        <button onclick="addJebol()" class="btn-success px-4 py-2 rounded-lg text-sm font-semibold text-white">Simpan</button>
+        <button onclick="toggleJebolForm()" class="px-4 py-2 rounded-lg text-sm font-semibold" style="background:#1a2744;color:#94a3b8">Batal</button>
+      </div>
+    </div>
+    <div class="card overflow-hidden"><div class="overflow-x-auto">
+      <table class="w-full text-sm"><thead><tr style="background:#1a2744">
+        <th class="text-left px-4 py-3 text-xs font-semibold" style="color:#64748b">AKUN</th>
+        <th class="text-left px-4 py-3 text-xs font-semibold" style="color:#64748b">TIPE</th>
+        <th class="text-left px-4 py-3 text-xs font-semibold" style="color:#64748b">STATUS</th>
+        <th class="text-left px-4 py-3 text-xs font-semibold" style="color:#64748b">AKSI</th>
+      </tr></thead><tbody>
+        ${akuns.map(a=>`<tr class="table-row">
+          <td class="px-4 py-3">${a.akun_name||'-'}</td>
+          <td class="px-4 py-3"><span class="badge" style="background:#3b82f620;color:#3b82f6">${a.akun_type||'-'}</span></td>
+          <td class="px-4 py-3"><span class="badge" style="background:${a.akun_status==='Berhasil'?'#10b98120':'#ef444420'};color:${a.akun_status==='Berhasil'?'#10b981':'#ef4444'}">${a.akun_status||'-'}</span></td>
+          <td class="px-4 py-3"><button onclick="deleteRecord('${a.__backendId}')" class="text-xs font-semibold px-3 py-1 rounded" style="color:#ef4444;background:#ef444420">Hapus</button></td>
+        </tr>`).join('')||`<tr><td colspan="4" class="px-4 py-8 text-center" style="color:#4a5568">Belum ada data</td></tr>`}
+      </tbody></table>
+    </div></div>
+  </div>`;
+  lucide.createIcons();
+}
+
+function toggleJebolForm(){
+  window.jebolFormVisible=!window.jebolFormVisible;
+  if(currentPage==='admin-jebol')renderPage('admin-jebol');
+}
+
+async function addJebol(){
+  const name=document.getElementById('jb-name').value.trim();
+  const type=document.getElementById('jb-type').value;
+  const status=document.getElementById('jb-status').value;
+  if(!name){showToast('Isi nama akun!','error');return}
+  if(allData.length>=999){showToast('Limit data tercapai!','error');return}
+  const r=await window.dataSdk.create({record_type:'akun',akun_name:name,akun_type:type,akun_status:status,akun_by:'admin',name:'',username:'',password:'',role:'',stok_name:'',stok_qty:0,buyer_name:'',buyer_phone:'',buyer_product:'',buyer_date:'',buyer_by:'',finance_desc:'',finance_amount:0,finance_type:'',finance_date:'',finance_by:'',limit_username:'',limit_amount:0,akun_email:'',akun_password:'',web_name:'',web_url:'',wa_phone:'',wa_message:'',target_username:'',target_amount:0,target_achieved:0});
+  if(r.isOk){showToast('Akun ditambahkan!');window.jebolFormVisible=false;document.getElementById('jb-name').value='';document.getElementById('jb-type').value='Facebook';document.getElementById('jb-status').value='Berhasil'}
+  else showToast('Gagal','error');
+}
+
+// ========== CREATE WEB ==========
+function renderAdminWeb(el){
+  const webs=getRecords('web');
+  const formVisible=window.webFormVisible||false;
+  el.innerHTML=`<div class="fade-in">
+    <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
+      <h2 class="text-xl font-bold" style="color:#fff">Create Web</h2>
+      <button onclick="toggleWebForm()" class="btn-primary px-4 py-2.5 rounded-lg text-sm font-semibold text-white flex items-center gap-2"><i data-lucide="plus" style="width:16px;height:16px"></i> Tambah</button>
+    </div>
+    <div id="web-form" style="display:${formVisible?'block':'none'}" class="card p-5 mb-5">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
+        <div><label class="block text-xs font-semibold mb-1" style="color:#94a3b8">Nama Web</label><input id="web-name" class="input-field" placeholder="Nama website"></div>
+        <div><label class="block text-xs font-semibold mb-1" style="color:#94a3b8">URL</label><input id="web-url" class="input-field" placeholder="https://..."></div>
+      </div>
+      <div class="flex gap-2">
+        <button onclick="addWeb()" class="btn-success px-4 py-2 rounded-lg text-sm font-semibold text-white">Simpan</button>
+        <button onclick="toggleWebForm()" class="px-4 py-2 rounded-lg text-sm font-semibold" style="background:#1a2744;color:#94a3b8">Batal</button>
+      </div>
+    </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      ${webs.map(w=>`<div class="card p-4"><div class="flex justify-between items-start"><div><div class="flex items-center gap-2 mb-1"><i data-lucide="globe" style="width:16px;height:16px;color:#6366f1"></i><span class="text-sm font-bold" style="color:#fff">${w.web_name||'-'}</span></div><div class="text-xs" style="color:#6366f1;word-break:break-all">${w.web_url||'-'}</div></div><button onclick="deleteRecord('${w.__backendId}')" style="color:#ef4444"><i data-lucide="trash-2" style="width:16px;height:16px"></i></button></div></div>`).join('')||'<div class="col-span-full text-center py-8" style="color:#4a5568">Belum ada web</div>'}
+    </div>
+  </div>`;
+  lucide.createIcons();
+}
+
+function toggleWebForm(){
+  window.webFormVisible=!window.webFormVisible;
+  if(currentPage==='admin-web')renderPage('admin-web');
+}
+
+async function addWeb(){
+  const name=document.getElementById('web-name').value.trim();
+  const url=document.getElementById('web-url').value.trim();
+  if(!name||!url){showToast('Isi semua field!','error');return}
+  if(allData.length>=999){showToast('Limit data tercapai!','error');return}
+  const r=await window.dataSdk.create({record_type:'web',web_name:name,web_url:url,name:'',username:'',password:'',role:'',stok_name:'',stok_qty:0,buyer_name:'',buyer_phone:'',buyer_product:'',buyer_date:'',buyer_by:'',finance_desc:'',finance_amount:0,finance_type:'',finance_date:'',finance_by:'',limit_username:'',limit_amount:0,akun_name:'',akun_email:'',akun_password:'',akun_status:'',akun_type:'',akun_by:'',wa_phone:'',wa_message:'',target_username:'',target_amount:0,target_achieved:0});
+  if(r.isOk){showToast('Web ditambahkan!');window.webFormVisible=false;document.getElementById('web-name').value='';document.getElementById('web-url').value=''}
+  else showToast('Gagal','error');
+}
+
+// ========== KENON WA ==========
+function renderAdminWA(el){
+  const was=getRecords('wa');
+  const formVisible=window.waFormVisible||false;
+  el.innerHTML=`<div class="fade-in">
+    <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
+      <h2 class="text-xl font-bold" style="color:#fff">WA Branding</h2>
+      <button onclick="toggleWAForm()" class="btn-primary px-4 py-2.5 rounded-lg text-sm font-semibold text-white flex items-center gap-2"><i data-lucide="plus" style="width:16px;height:16px"></i> Tambah</button>
+    </div>
+    <div id="wa-form" style="display:${formVisible?'block':'none'}" class="card p-5 mb-5">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
+        <div><label class="block text-xs font-semibold mb-1" style="color:#94a3b8">No. WA</label><input id="wa-phone" class="input-field" placeholder="628xxx"></div>
+        <div><label class="block text-xs font-semibold mb-1" style="color:#94a3b8">Pesan/Branding</label><input id="wa-message" class="input-field" placeholder="Pesan WA"></div>
+      </div>
+      <div class="flex gap-2">
+        <button onclick="addWA()" class="btn-success px-4 py-2 rounded-lg text-sm font-semibold text-white">Simpan</button>
+        <button onclick="toggleWAForm()" class="px-4 py-2 rounded-lg text-sm font-semibold" style="background:#1a2744;color:#94a3b8">Batal</button>
+      </div>
+    </div>
+    <div class="card overflow-hidden"><div class="overflow-x-auto">
+      <table class="w-full text-sm"><thead><tr style="background:#1a2744">
+        <th class="text-left px-4 py-3 text-xs font-semibold" style="color:#64748b">NO WA</th>
+        <th class="text-left px-4 py-3 text-xs font-semibold" style="color:#64748b">PESAN</th>
+        <th class="text-left px-4 py-3 text-xs font-semibold" style="color:#64748b">AKSI</th>
+      </tr></thead><tbody>
+        ${was.map(w=>`<tr class="table-row">
+          <td class="px-4 py-3" style="color:#10b981;font-weight:600">${w.wa_phone||'-'}</td>
+          <td class="px-4 py-3 text-xs">${w.wa_message||'-'}</td>
+          <td class="px-4 py-3"><button onclick="deleteRecord('${w.__backendId}')" class="text-xs font-semibold px-3 py-1 rounded" style="color:#ef4444;background:#ef444420">Hapus</button></td>
+        </tr>`).join('')||`<tr><td colspan="3" class="px-4 py-8 text-center" style="color:#4a5568">Belum ada data</td></tr>`}
+      </tbody></table>
+    </div></div>
+  </div>`;
+  lucide.createIcons();
+}
+
+function toggleWAForm(){
+  window.waFormVisible=!window.waFormVisible;
+  if(currentPage==='admin-wa')renderPage('admin-wa');
+}
+
+async function addWA(){
+  const phone=document.getElementById('wa-phone').value.trim();
+  const message=document.getElementById('wa-message').value.trim();
+  if(!phone){showToast('Isi no. WA!','error');return}
+  if(allData.length>=999){showToast('Limit data tercapai!','error');return}
+  const r=await window.dataSdk.create({record_type:'wa',wa_phone:phone,wa_message:message,name:'',username:'',password:'',role:'',stok_name:'',stok_qty:0,buyer_name:'',buyer_phone:'',buyer_product:'',buyer_date:'',buyer_by:'',finance_desc:'',finance_amount:0,finance_type:'',finance_date:'',finance_by:'',limit_username:'',limit_amount:0,akun_name:'',akun_email:'',akun_password:'',akun_status:'',akun_type:'',akun_by:'',web_name:'',web_url:'',target_username:'',target_amount:0,target_achieved:0});
+  if(r.isOk){showToast('WA ditambahkan!');window.waFormVisible=false;document.getElementById('wa-phone').value='';document.getElementById('wa-message').value=''}
+  else showToast('Gagal','error');
+}
+
+// ========== BUYER INPUT ==========
+function renderBuyerInput(el){
+  const buyers=getRecords('buyer');
+  const byUser=currentUser.type==='admin'?buyers:buyers.filter(b=>b.buyer_by===currentUser.username);
+  const formVisible=window.buyerFormVisible||false;
+  el.innerHTML=`<div class="fade-in">
+    <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
+      <h2 class="text-xl font-bold" style="color:#fff">Input Pembeli</h2>
+      <button onclick="toggleBuyerForm()" class="btn-primary px-4 py-2.5 rounded-lg text-sm font-semibold text-white flex items-center gap-2"><i data-lucide="plus" style="width:16px;height:16px"></i> Tambah</button>
+    </div>
+    <div id="buyer-form" style="display:${formVisible?'block':'none'}" class="card p-5 mb-5">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
+        <div><label class="block text-xs font-semibold mb-1" style="color:#94a3b8">Nama Pembeli</label><input id="by-name" class="input-field" placeholder="Nama"></div>
+        <div><label class="block text-xs font-semibold mb-1" style="color:#94a3b8">No. Telp</label><input id="by-phone" class="input-field" placeholder="08xxxx"></div>
+        <div><label class="block text-xs font-semibold mb-1" style="color:#94a3b8">Produk</label><input id="by-product" class="input-field" placeholder="Nama produk"></div>
+        <div><label class="block text-xs font-semibold mb-1" style="color:#94a3b8">Tanggal</label><input id="by-date" type="date" class="input-field"></div>
+      </div>
+      <div class="flex gap-2">
+        <button onclick="addBuyer()" class="btn-success px-4 py-2 rounded-lg text-sm font-semibold text-white">Simpan</button>
+        <button onclick="toggleBuyerForm()" class="px-4 py-2 rounded-lg text-sm font-semibold" style="background:#1a2744;color:#94a3b8">Batal</button>
+      </div>
+    </div>
+    <div class="card overflow-hidden"><div class="overflow-x-auto">
+      <table class="w-full text-sm"><thead><tr style="background:#1a2744">
+        <th class="text-left px-4 py-3 text-xs font-semibold" style="color:#64748b">NAMA</th>
+        <th class="text-left px-4 py-3 text-xs font-semibold" style="color:#64748b">TELP</th>
+        <th class="text-left px-4 py-3 text-xs font-semibold" style="color:#64748b">PRODUK</th>
+        <th class="text-left px-4 py-3 text-xs font-semibold" style="color:#64748b">TANGGAL</th>
+        <th class="text-left px-4 py-3 text-xs font-semibold" style="color:#64748b">OLEH</th>
+      </tr></thead><tbody>
+        ${byUser.map(b=>`<tr class="table-row">
+          <td class="px-4 py-3">${b.buyer_name||'-'}</td>
+          <td class="px-4 py-3" style="color:#10b981">${b.buyer_phone||'-'}</td>
+          <td class="px-4 py-3">${b.buyer_product||'-'}</td>
+          <td class="px-4 py-3 text-xs" style="color:#64748b">${b.buyer_date||'-'}</td>
+          <td class="px-4 py-3"><span class="badge" style="background:#6366f120;color:#6366f1">${b.buyer_by||'-'}</span></td>
+        </tr>`).join('')||`<tr><td colspan="5" class="px-4 py-8 text-center" style="color:#4a5568">Belum ada pembeli</td></tr>`}
+      </tbody></table>
+    </div></div>
+  </div>`;
+  lucide.createIcons();
+}
+
+function toggleBuyerForm(){
+  window.buyerFormVisible=!window.buyerFormVisible;
+  if(['admin-buyer','mm-buyer','mk-buyer','pr-buyer'].includes(currentPage))renderPage(currentPage);
+}
+
+async function addBuyer(){
+  const name=document.getElementById('by-name').value.trim();
+  const phone=document.getElementById('by-phone').value.trim();
+  const product=document.getElementById('by-product').value.trim();
+  const date=document.getElementById('by-date').value;
+  if(!name){showToast('Isi nama pembeli!','error');return}
+  if(allData.length>=999){showToast('Limit data tercapai!','error');return}
+  const by=currentUser.type==='admin'?'admin':(currentUser.username||'unknown');
+  const r=await window.dataSdk.create({record_type:'buyer',buyer_name:name,buyer_phone:phone,buyer_product:product,buyer_date:date,buyer_by:by,name:'',username:'',password:'',role:'',stok_name:'',stok_qty:0,finance_desc:'',finance_amount:0,finance_type:'',finance_date:'',finance_by:'',limit_username:'',limit_amount:0,akun_name:'',akun_email:'',akun_password:'',akun_status:'',akun_type:'',akun_by:'',web_name:'',web_url:'',wa_phone:'',wa_message:'',target_username:'',target_amount:0,target_achieved:0});
+  if(r.isOk){showToast('Pembeli ditambahkan!');window.buyerFormVisible=false;document.getElementById('by-name').value='';document.getElementById('by-phone').value='';document.getElementById('by-product').value='';document.getElementById('by-date').value=''}
+  else showToast('Gagal','error');
+}
+
+// ========== LIMIT PENGGUNAAN ==========
+function renderAdminLimit(el){
+  const limits=getRecords('limit');
+  const users=getRecords('user').filter(u=>u.role==='MARKETING');
+  el.innerHTML=`<div class="fade-in">
+    <h2 class="text-xl font-bold mb-6" style="color:#fff">Limit Penggunaan Marketing</h2>
+    <div class="card p-5 mb-5">
+      <h3 class="text-sm font-bold mb-3" style="color:#fff">Tambah / Update Limit</h3>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
+        <div><label class="block text-xs font-semibold mb-1" style="color:#94a3b8">Cari Username</label>
+          <input id="lm-search" class="input-field" placeholder="Ketik username marketing" list="mk-list">
+          <datalist id="mk-list">${users.map(u=>`<option value="${u.username}">`).join('')}</datalist>
+        </div>
+        <div><label class="block text-xs font-semibold mb-1" style="color:#94a3b8">Jumlah Limit</label><input id="lm-amount" type="number" class="input-field" placeholder="0"></div>
+      </div>
+      <button onclick="addLimit()" class="btn-success px-4 py-2 rounded-lg text-sm font-semibold text-white">Set Limit</button>
+    </div>
+    <div class="card overflow-hidden"><div class="overflow-x-auto">
+      <table class="w-full text-sm"><thead><tr style="background:#1a2744">
+        <th class="text-left px-4 py-3 text-xs font-semibold" style="color:#64748b">USERNAME</th>
+        <th class="text-left px-4 py-3 text-xs font-semibold" style="color:#64748b">LIMIT</th>
+        <th class="text-left px-4 py-3 text-xs font-semibold" style="color:#64748b">AKSI</th>
+      </tr></thead><tbody>
+        ${limits.map(l=>`<tr class="table-row">
+          <td class="px-4 py-3" style="color:#6366f1;font-weight:600">${l.limit_username||'-'}</td>
+          <td class="px-4 py-3"><span class="text-lg font-bold" style="color:#10b981">${l.limit_amount||0}</span></td>
+          <td class="px-4 py-3"><button onclick="deleteRecord('${l.__backendId}')" class="text-xs font-semibold px-3 py-1 rounded" style="color:#ef4444;background:#ef444420">Hapus</button></td>
+        </tr>`).join('')||`<tr><td colspan="3" class="px-4 py-8 text-center" style="color:#4a5568">Belum ada limit</td></tr>`}
+      </tbody></table>
+    </div></div>
+  </div>`;
+}
+
+async function addLimit(){
+  const username=document.getElementById('lm-search').value.trim();
+  const amount=parseInt(document.getElementById('lm-amount').value)||0;
+  if(!username){showToast('Masukan username!','error');return}
+  const mkUsers=getRecords('user').filter(u=>u.role==='MARKETING');
+  if(!mkUsers.find(u=>u.username===username)){showToast('Username marketing tidak ditemukan!','error');return}
+  if(allData.length>=999){showToast('Limit data tercapai!','error');return}
+  // Update existing or create new
+  const existing=getRecords('limit').find(l=>l.limit_username===username);
+  if(existing){
+    const updated={...existing,limit_amount:amount};
+    const r=await window.dataSdk.update(updated);
+    if(r.isOk)showToast('Limit diupdate!');else showToast('Gagal update','error');
+  }else{
+    const r=await window.dataSdk.create({record_type:'limit',limit_username:username,limit_amount:amount,name:'',username:'',password:'',role:'',stok_name:'',stok_qty:0,buyer_name:'',buyer_phone:'',buyer_product:'',buyer_date:'',buyer_by:'',finance_desc:'',finance_amount:0,finance_type:'',finance_date:'',finance_by:'',akun_name:'',akun_email:'',akun_password:'',akun_status:'',akun_type:'',akun_by:'',web_name:'',web_url:'',wa_phone:'',wa_message:'',target_username:'',target_amount:0,target_achieved:0});
+    if(r.isOk)showToast('Limit ditambahkan!');else showToast('Gagal','error');
+  }
+}
+
+// ========== FINANCE ==========
+function renderFinance(el){
+  const finance=getRecords('finance');
+  const income=finance.filter(f=>f.finance_type==='masuk').reduce((s,x)=>s+(Number(x.finance_amount)||0),0);
+  const expense=finance.filter(f=>f.finance_type==='keluar').reduce((s,x)=>s+(Number(x.finance_amount)||0),0);
+  const total=income-expense;
+  const maxBar=Math.max(income,expense,1);
+  const isAdmin=currentUser.type==='admin';
+
+  el.innerHTML=`<div class="fade-in">
+    <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
+      <h2 class="text-xl font-bold" style="color:#fff">Keuangan</h2>
+      ${isAdmin?`<button onclick="document.getElementById('fin-form').style.display=document.getElementById('fin-form').style.display==='none'?'block':'none'" class="btn-primary px-4 py-2.5 rounded-lg text-sm font-semibold text-white flex items-center gap-2"><i data-lucide="plus" style="width:16px;height:16px"></i> Tambah</button>`:''}
+    </div>
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+      <div class="stat-card"><div class="text-xs mb-1" style="color:#64748b">Pemasukan</div><div class="text-xl font-bold" style="color:#10b981">Rp ${formatNum(income)}</div></div>
+      <div class="stat-card"><div class="text-xs mb-1" style="color:#64748b">Pengeluaran</div><div class="text-xl font-bold" style="color:#ef4444">Rp ${formatNum(expense)}</div></div>
+      <div class="stat-card"><div class="text-xs mb-1" style="color:#64748b">Saldo</div><div class="text-xl font-bold" style="color:${total>=0?'#10b981':'#ef4444'}">Rp ${formatNum(total)}</div></div>
+    </div>
+    <div class="card p-5 mb-6">
+      <h3 class="text-sm font-bold mb-4" style="color:#94a3b8">GRAFIK KEUANGAN</h3>
+      <div class="flex items-end gap-4 mb-2" style="height:120px">
+        <div class="flex flex-col items-center flex-1">
+          <div class="w-full rounded-t-lg" style="background:#10b981;height:${Math.max((income/maxBar)*100,4)}%;min-height:4px;transition:height .6s"></div>
+          <div class="text-xs mt-2" style="color:#64748b">Masuk</div>
+        </div>
+        <div class="flex flex-col items-center flex-1">
+          <div class="w-full rounded-t-lg" style="background:#ef4444;height:${Math.max((expense/maxBar)*100,4)}%;min-height:4px;transition:height .6s"></div>
+          <div class="text-xs mt-2" style="color:#64748b">Keluar</div>
+        </div>
+      </div>
+    </div>
+    ${isAdmin?`<div id="fin-form" style="display:none" class="card p-5 mb-5">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-3">
+        <div><label class="block text-xs font-semibold mb-1" style="color:#94a3b8">Deskripsi</label><input id="fn-desc" class="input-field" placeholder="Deskripsi"></div>
+        <div><label class="block text-xs font-semibold mb-1" style="color:#94a3b8">Jumlah (Rp)</label><input id="fn-amount" type="number" class="input-field" placeholder="0"></div>
+        <div><label class="block text-xs font-semibold mb-1" style="color:#94a3b8">Tipe</label>
+          <select id="fn-type" class="input-field"><option value="masuk">Pemasukan</option><option value="keluar">Pengeluaran</option></select></div>
+        <div><label class="block text-xs font-semibold mb-1" style="color:#94a3b8">Tanggal</label><input id="fn-date" type="date" class="input-field"></div>
+      </div>
+      <button onclick="addFinance()" class="btn-success px-4 py-2 rounded-lg text-sm font-semibold text-white">Simpan</button>
+    </div>`:''}
+    <div class="card overflow-hidden"><div class="overflow-x-auto">
+      <table class="w-full text-sm"><thead><tr style="background:#1a2744">
+        <th class="text-left px-4 py-3 text-xs font-semibold" style="color:#64748b">DESKRIPSI</th>
+        <th class="text-left px-4 py-3 text-xs font-semibold" style="color:#64748b">JUMLAH</th>
+        <th class="text-left px-4 py-3 text-xs font-semibold" style="color:#64748b">TIPE</th>
+        <th class="text-left px-4 py-3 text-xs font-semibold" style="color:#64748b">TANGGAL</th>
+        ${isAdmin?`<th class="text-left px-4 py-3 text-xs font-semibold" style="color:#64748b">AKSI</th>`:''}
+      </tr></thead><tbody>
+        ${finance.map(f=>`<tr class="table-row">
+          <td class="px-4 py-3">${f.finance_desc||'-'}</td>
+          <td class="px-4 py-3 font-bold" style="color:${f.finance_type==='masuk'?'#10b981':'#ef4444'}">Rp ${formatNum(f.finance_amount)}</td>
+          <td class="px-4 py-3"><span class="badge" style="background:${f.finance_type==='masuk'?'#10b98120':'#ef444420'};color:${f.finance_type==='masuk'?'#10b981':'#ef4444'}">${f.finance_type==='masuk'?'Masuk':'Keluar'}</span></td>
+          <td class="px-4 py-3 text-xs" style="color:#64748b">${f.finance_date||'-'}</td>
+          ${isAdmin?`<td class="px-4 py-3"><button onclick="deleteRecord('${f.__backendId}')" class="text-xs font-semibold px-3 py-1 rounded" style="color:#ef4444;background:#ef444420">Hapus</button></td>`:''}
+        </tr>`).join('')||`<tr><td colspan="${isAdmin?5:4}" class="px-4 py-8 text-center" style="color:#4a5568">Belum ada data</td></tr>`}
+      </tbody></table>
+    </div></div>
+  </div>`;
+  lucide.createIcons();
+}
+
+async function addFinance(){
+  const desc=document.getElementById('fn-desc').value.trim();
+  const amount=parseInt(document.getElementById('fn-amount').value)||0;
+  const type=document.getElementById('fn-type').value;
+  const date=document.getElementById('fn-date').value;
+  if(!desc||!amount){showToast('Isi deskripsi dan jumlah!','error');return}
+  if(allData.length>=999){showToast('Limit data tercapai!','error');return}
+  const by=currentUser.type==='admin'?'admin':(currentUser.username||'unknown');
+  const r=await window.dataSdk.create({record_type:'finance',finance_desc:desc,finance_amount:amount,finance_type:type,finance_date:date,finance_by:by,name:'',username:'',password:'',role:'',stok_name:'',stok_qty:0,buyer_name:'',buyer_phone:'',buyer_product:'',buyer_date:'',buyer_by:'',limit_username:'',limit_amount:0,akun_name:'',akun_email:'',akun_password:'',akun_status:'',akun_type:'',akun_by:'',web_name:'',web_url:'',wa_phone:'',wa_message:'',target_username:'',target_amount:0,target_achieved:0});
+  if(r.isOk)showToast('Data keuangan ditambahkan!');else showToast('Gagal','error');
+}
+
+// ========== TIM DATA ==========
+function renderTDAkun(el){
+  const akuns=getRecords('akun');
+  const formVisible=window.tdAkunFormVisible||false;
+  el.innerHTML=`<div class="fade-in">
+    <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
+      <h2 class="text-xl font-bold" style="color:#fff">Input Data Akun</h2>
+      <button onclick="toggleTDAkunForm()" class="btn-primary px-4 py-2.5 rounded-lg text-sm font-semibold text-white flex items-center gap-2"><i data-lucide="plus" style="width:16px;height:16px"></i> Tambah Akun</button>
+    </div>
+    <div id="td-akun-form" style="display:${formVisible?'block':'none'}" class="card p-5 mb-5">
+      <h3 class="text-sm font-bold mb-3" style="color:#fff">Tambah Akun Baru</h3>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
+        <div><label class="block text-xs font-semibold mb-1" style="color:#94a3b8">Nama Akun</label><input id="tda-name" class="input-field" placeholder="Nama akun"></div>
+        <div><label class="block text-xs font-semibold mb-1" style="color:#94a3b8">Email</label><input id="tda-email" class="input-field" type="email" placeholder="email@example.com"></div>
+        <div><label class="block text-xs font-semibold mb-1" style="color:#94a3b8">Password</label><input id="tda-password" class="input-field" type="password" placeholder="Password"></div>
+        <div><label class="block text-xs font-semibold mb-1" style="color:#94a3b8">Tipe</label>
+          <select id="tda-type" class="input-field"><option value="">Pilih Tipe</option><option value="Facebook">Facebook</option><option value="Instagram">Instagram</option><option value="TikTok">TikTok</option><option value="Google">Google</option></select></div>
+      </div>
+      <div class="flex gap-2">
+        <button onclick="addTDAkun()" class="btn-success px-4 py-2 rounded-lg text-sm font-semibold text-white">Simpan</button>
+        <button onclick="toggleTDAkunForm()" class="px-4 py-2 rounded-lg text-sm font-semibold" style="background:#1a2744;color:#94a3b8">Batal</button>
+      </div>
+    </div>
+    <div class="card overflow-hidden"><div class="overflow-x-auto">
+      <table class="w-full text-sm"><thead><tr style="background:#1a2744">
+        <th class="text-left px-4 py-3 text-xs font-semibold" style="color:#64748b">AKUN</th>
+        <th class="text-left px-4 py-3 text-xs font-semibold" style="color:#64748b">EMAIL</th>
+        <th class="text-left px-4 py-3 text-xs font-semibold" style="color:#64748b">TIPE</th>
+        <th class="text-left px-4 py-3 text-xs font-semibold" style="color:#64748b">STATUS</th>
+        <th class="text-left px-4 py-3 text-xs font-semibold" style="color:#64748b">AKSI</th>
+      </tr></thead><tbody>
+        ${akuns.map(a=>`<tr class="table-row">
+          <td class="px-4 py-3 font-semibold">${a.akun_name||'-'}</td>
+          <td class="px-4 py-3 text-xs">${a.akun_email||'-'}</td>
+          <td class="px-4 py-3"><span class="badge" style="background:#3b82f620;color:#3b82f6">${a.akun_type||'-'}</span></td>
+          <td class="px-4 py-3"><span class="badge" style="background:${a.akun_status==='Tersedia'?'#10b98120':a.akun_status==='Abis'?'#ef444420':'#f59e0b20'};color:${a.akun_status==='Tersedia'?'#10b981':a.akun_status==='Abis'?'#ef4444':'#f59e0b'}">${a.akun_status||'Tersedia'}</span></td>
+          <td class="px-4 py-3 flex gap-1"><button onclick="updateAkunStatus('${a.__backendId}','${a.akun_status==='Tersedia'?'Abis':'Tersedia'}')" class="text-xs font-semibold px-2 py-1 rounded" style="background:#6366f120;color:#6366f1">Update</button><button onclick="deleteRecord('${a.__backendId}')" class="text-xs font-semibold px-2 py-1 rounded" style="color:#ef4444;background:#ef444420">Hapus</button></td>
+        </tr>`).join('')||`<tr><td colspan="5" class="px-4 py-8 text-center" style="color:#4a5568">Belum ada akun</td></tr>`}
+      </tbody></table>
+    </div></div>
+  </div>`;
+  lucide.createIcons();
+}
+
+function toggleTDAkunForm(){
+  window.tdAkunFormVisible=!window.tdAkunFormVisible;
+  if(currentPage==='td-akun')renderPage('td-akun');
+}
+
+async function addTDAkun(){
+  const name=document.getElementById('tda-name').value.trim();
+  const email=document.getElementById('tda-email').value.trim();
+  const pwd=document.getElementById('tda-password').value.trim();
+  const type=document.getElementById('tda-type').value;
+  if(!name||!email||!pwd||!type){showToast('Isi semua field!','error');return}
+  if(allData.length>=999){showToast('Limit data tercapai!','error');return}
+  const r=await window.dataSdk.create({record_type:'akun',akun_name:name,akun_email:email,akun_password:pwd,akun_type:type,akun_status:'Tersedia',akun_by:currentUser.username||'tim_data',name:'',username:'',password:'',role:'',stok_name:'',stok_qty:0,buyer_name:'',buyer_phone:'',buyer_product:'',buyer_date:'',buyer_by:'',finance_desc:'',finance_amount:0,finance_type:'',finance_date:'',finance_by:'',limit_username:'',limit_amount:0,web_name:'',web_url:'',wa_phone:'',wa_message:'',target_username:'',target_amount:0,target_achieved:0});
+  if(r.isOk){showToast('Akun ditambahkan!');window.tdAkunFormVisible=false;document.getElementById('tda-name').value='';document.getElementById('tda-email').value='';document.getElementById('tda-password').value='';document.getElementById('tda-type').value=''}
+  else showToast('Gagal','error');
+}
+
+async function updateAkunStatus(id,newStatus){
+  const rec=allData.find(d=>d.__backendId===id);
+  if(!rec)return;
+  const updated={...rec,akun_status:newStatus};
+  const r=await window.dataSdk.update(updated);
+  if(r.isOk)showToast(`Status diubah ke ${newStatus}`);else showToast('Gagal','error');
+}
+
+function renderTDAnalisis(el){
+  const buyers=getRecords('buyer');
+  const users=getRecords('user');
+  // Count by marketing user
+  const byMarketing={};
+  buyers.forEach(b=>{
+    const key=b.buyer_by||'unknown';
+    byMarketing[key]=(byMarketing[key]||0)+1;
+  });
+  const maxBuyer=Math.max(...Object.values(byMarketing),1);
+  // Count by product
+  const byProduct={};
+  buyers.forEach(b=>{
+    const key=b.buyer_product||'Lainnya';
+    byProduct[key]=(byProduct[key]||0)+1;
+  });
+
+  el.innerHTML=`<div class="fade-in">
+    <h2 class="text-xl font-bold mb-6" style="color:#fff">Analisis Pembeli</h2>
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+      <div class="stat-card"><div class="text-xs mb-1" style="color:#64748b">Total Pembeli</div><div class="text-2xl font-bold" style="color:#6366f1">${buyers.length}</div></div>
+      <div class="stat-card"><div class="text-xs mb-1" style="color:#64748b">Marketing Aktif</div><div class="text-2xl font-bold" style="color:#10b981">${Object.keys(byMarketing).length}</div></div>
+      <div class="stat-card"><div class="text-xs mb-1" style="color:#64748b">Produk Berbeda</div><div class="text-2xl font-bold" style="color:#f59e0b">${Object.keys(byProduct).length}</div></div>
+    </div>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div class="card p-5">
+        <h3 class="text-sm font-bold mb-4" style="color:#94a3b8">PEMBELI PER MARKETING</h3>
+        ${Object.entries(byMarketing).map(([k,v])=>`
+          <div class="mb-3">
+            <div class="flex justify-between text-xs mb-1"><span style="color:#e2e8f0">${k}</span><span style="color:#6366f1;font-weight:700">${v}</span></div>
+            <div style="height:8px;background:#1a2744;border-radius:4px;overflow:hidden"><div class="bar-fill" style="width:${(v/maxBuyer)*100}%;background:linear-gradient(90deg,#6366f1,#8b5cf6)"></div></div>
+          </div>`).join('')||'<p class="text-xs" style="color:#4a5568">Belum ada data</p>'}
+      </div>
+      <div class="card p-5">
+        <h3 class="text-sm font-bold mb-4" style="color:#94a3b8">PEMBELI PER PRODUK</h3>
+        ${Object.entries(byProduct).map(([k,v])=>`
+          <div class="flex justify-between items-center py-2" style="border-bottom:1px solid #1a2744">
+            <span class="text-xs font-medium">${k}</span>
+            <span class="badge" style="background:#f59e0b20;color:#f59e0b">${v}</span>
+          </div>`).join('')||'<p class="text-xs" style="color:#4a5568">Belum ada data</p>'}
+      </div>
+    </div>
+  </div>`;
+}
+
+// ========== ROLE DASHBOARDS ==========
+function renderMMDashboard(el){
+  const stok=getRecords('stok');
+  const buyers=getRecords('buyer');
+  const totalStok=stok.reduce((s,x)=>s+(Number(x.stok_qty)||0),0);
+  el.innerHTML=`<div class="fade-in">
+    <h2 class="text-xl font-bold mb-6" style="color:#fff">Dashboard Manager Marketing</h2>
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+      ${statCard('package','Total Stok',totalStok,'#10b981')}
+      ${statCard('shopping-cart','Total Pembeli',buyers.length,'#f59e0b')}
+    </div>
+  </div>`;
+}
+
+function renderMKDashboard(el){
+  const buyers=getRecords('buyer').filter(b=>b.buyer_by===currentUser.username);
+  const limit=getRecords('limit').find(l=>l.limit_username===currentUser.username);
+  const limitAmt=limit?Number(limit.limit_amount):0;
+  el.innerHTML=`<div class="fade-in">
+    <h2 class="text-xl font-bold mb-6" style="color:#fff">Dashboard Marketing</h2>
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+      ${statCard('shopping-cart','Pembeli Saya',buyers.length,'#6366f1')}
+      ${statCard('gauge','Limit Saya',limitAmt,'#10b981')}
+    </div>
+  </div>`;
+}
+
+function renderMKLimit(el){
+  const limit=getRecords('limit').find(l=>l.limit_username===currentUser.username);
+  const limitAmt=limit?Number(limit.limit_amount):0;
+  const buyers=getRecords('buyer').filter(b=>b.buyer_by===currentUser.username);
+  const used=buyers.length;
+  const pct=limitAmt>0?Math.min((used/limitAmt)*100,100):0;
+  el.innerHTML=`<div class="fade-in">
+    <h2 class="text-xl font-bold mb-6" style="color:#fff">Limit Penggunaan Saya</h2>
+    <div class="card p-6">
+      <div class="flex justify-between items-center mb-4">
+        <div><div class="text-xs" style="color:#64748b">Terpakai</div><div class="text-3xl font-bold" style="color:#6366f1">${used} <span class="text-sm" style="color:#64748b">/ ${limitAmt}</span></div></div>
+        <div style="width:60px;height:60px;border-radius:50%;border:4px solid #1a2744;display:flex;align-items:center;justify-content:center;background:conic-gradient(#6366f1 ${pct*3.6}deg,#1a2744 0deg)"><div style="width:44px;height:44px;border-radius:50%;background:#16213e;display:flex;align-items:center;justify-content:center"><span class="text-xs font-bold">${Math.round(pct)}%</span></div></div>
+      </div>
+      <div style="height:10px;background:#1a2744;border-radius:5px;overflow:hidden"><div class="bar-fill" style="width:${pct}%;background:${pct>80?'linear-gradient(90deg,#ef4444,#dc2626)':'linear-gradient(90deg,#6366f1,#8b5cf6)'}"></div></div>
+      ${pct>=100?'<div class="mt-3 text-xs font-semibold" style="color:#ef4444">⚠️ Limit sudah tercapai!</div>':''}
+    </div>
+  </div>`;
+}
+
+// ========== PROMOTOR DASHBOARD ==========
+function renderPRDashboard(el){
+  const buyers=getRecords('buyer').filter(b=>b.buyer_by===currentUser.username);
+  el.innerHTML=`<div class="fade-in">
+    <h2 class="text-xl font-bold mb-6" style="color:#fff">Dashboard Promotor</h2>
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">${statCard('shopping-cart','Pembeli Saya',buyers.length,'#f59e0b')}</div>
+  </div>`;
+}
+
+function renderTDDashboard(el){
+  const akuns=getRecords('akun');
+  const buyers=getRecords('buyer');
+  el.innerHTML=`<div class="fade-in">
+    <h2 class="text-xl font-bold mb-6" style="color:#fff">Dashboard Tim Data</h2>
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+      ${statCard('database','Total Akun',akuns.length,'#3b82f6')}
+      ${statCard('shopping-cart','Total Pembeli',buyers.length,'#f59e0b')}
+    </div>
+  </div>`;
+}
+
+function renderTKDashboard(el){
+  const finance=getRecords('finance');
+  const buyers=getRecords('buyer');
+  const income=finance.filter(f=>f.finance_type==='masuk').reduce((s,x)=>s+(Number(x.finance_amount)||0),0);
+  const expense=finance.filter(f=>f.finance_type==='keluar').reduce((s,x)=>s+(Number(x.finance_amount)||0),0);
+  const today=new Date().toISOString().split('T')[0];
+  const thisMonthStart=new Date(new Date().getFullYear(),new Date().getMonth(),1).toISOString().split('T')[0];
+  const thisMonthBuyers=buyers.filter(b=>b.buyer_date&&b.buyer_date>=thisMonthStart&&b.buyer_date<=today);
+  const thisMonthIncome=finance.filter(f=>f.finance_type==='masuk'&&f.finance_date&&f.finance_date>=thisMonthStart&&f.finance_date<=today).reduce((s,x)=>s+(Number(x.finance_amount)||0),0);
+  el.innerHTML=`<div class="fade-in">
+    <h2 class="text-xl font-bold mb-6" style="color:#fff">Dashboard Keuangan</h2>
+    <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-6">
+      ${statCard('trending-up','Pemasukan Total','Rp '+formatNum(income),'#10b981')}
+      ${statCard('trending-down','Pengeluaran Total','Rp '+formatNum(expense),'#ef4444')}
+      ${statCard('wallet','Saldo Total','Rp '+formatNum(income-expense),'#8b5cf6')}
+      ${statCard('shopping-cart','Pembeli Bulan Ini',thisMonthBuyers.length,'#f59e0b')}
+    </div>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div class="card p-5">
+        <h3 class="text-sm font-bold mb-3" style="color:#94a3b8">RINGKASAN BULAN INI</h3>
+        <div class="space-y-2">
+          <div class="flex justify-between py-2" style="border-bottom:1px solid #1a2744"><span style="color:#e2e8f0">Pemasukan</span><span style="color:#10b981;font-bold">Rp ${formatNum(thisMonthIncome)}</span></div>
+          <div class="flex justify-between py-2" style="border-bottom:1px solid #1a2744"><span style="color:#e2e8f0">Total Pembeli</span><span style="color:#f59e0b;font-bold">${thisMonthBuyers.length}</span></div>
+          <div class="flex justify-between py-2"><span style="color:#e2e8f0">Rata2 per Pembeli</span><span style="color:#6366f1;font-bold">Rp ${thisMonthBuyers.length>0?formatNum(Math.round(thisMonthIncome/thisMonthBuyers.length)):'0'}</span></div>
+        </div>
+      </div>
+      <div class="card p-5">
+        <h3 class="text-sm font-bold mb-4" style="color:#94a3b8">TOP PEMBELI BULAN INI</h3>
+        ${thisMonthBuyers.slice(0,5).reverse().map(b=>`<div class="flex justify-between items-center py-2" style="border-bottom:1px solid #1a2744"><span class="text-xs">${b.buyer_name||'-'}</span><span class="text-xs" style="color:#64748b">${b.buyer_date||'-'}</span></div>`).join('')||'<p class="text-xs" style="color:#4a5568">Belum ada pembeli</p>'}
+      </div>
+    </div>
+  </div>`;
+}
+
+// ========== RESPONSIVE ==========
+function toggleSidebar(){
+  const sb=document.getElementById('sidebar');
+  sidebarOpen=!sidebarOpen;
+  sb.style.display=sidebarOpen?'flex':'none';
+}
+
+function checkResponsive(){
+  const w=window.innerWidth;
+  const toggle=document.getElementById('mobile-toggle');
+  const sb=document.getElementById('sidebar');
+  if(w<768){
+    if(toggle)toggle.style.display='block';
+    if(sb){sb.style.position='fixed';sb.style.zIndex='30';sb.style.height='100%';if(!sidebarOpen)sb.style.display='none'}
+  }else{
+    if(toggle)toggle.style.display='none';
+    if(sb){sb.style.position='relative';sb.style.display='flex';sidebarOpen=true}
+  }
+}
+window.addEventListener('resize',checkResponsive);
+
+// Init icons
+lucide.createIcons();
+checkResponsive();
+</script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9ddcd92e70b08e41',t:'MTc3Mzc1OTQyOS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
